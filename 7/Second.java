@@ -163,7 +163,7 @@ public class Second {
 
         Scanner scanner = new Scanner(System.in);
 
-        ArrayList<Hand> inputList = new ArrayList<Hand>(1000);
+        ArrayList<Hand> inputList = new ArrayList<Hand>();
         
         while (scanner.hasNextLine()) {
             
@@ -183,15 +183,16 @@ public class Second {
             sortedArray[i] = inputList.get(i);
         }
         
-        //TODO
+
         //sort each list by highest cards
         Arrays.sort(sortedArray, (a, b) -> {
             for (int index = 0; index < 5; index++) {
                 if(cardValueFromChar(a.cards.charAt(index)) != cardValueFromChar(b.cards.charAt(index))){
-                    //System.err.println(a.cards.charAt(index)+" a;b "+b.cards.charAt(index));
-                    return cardValueFromChar(a.cards.charAt(index))-cardValueFromChar(b.cards.charAt(index));                    }
+                    //System.err.println(a.cards.charAt(index)+" a;b "+b.cards.charAt(index)+" = "+ (Integer.signum(cardValueFromChar(a.cards.charAt(index))-cardValueFromChar(b.cards.charAt(index)))));
+                    return Integer.signum(cardValueFromChar(a.cards.charAt(index))-cardValueFromChar(b.cards.charAt(index)));
                 }
-            System.err.println("error in sort");
+            }
+            System.err.println("a==b");
             return 0;
         });
 
@@ -259,7 +260,9 @@ public class Second {
         return 0;
     }
 
-    private static int numberDiffCards(String cards){
+    private static int numberDiffCards(String cardtmp){
+
+        String cards = cardtmp;
 
         int i = 0;
 
@@ -270,7 +273,7 @@ public class Second {
             }
         }
 
-        cards.replace('J', cards.charAt(i));
+        cards = cards.replace('J', cards.charAt(i));
 
         boolean[] barr = new boolean[13];
 
@@ -291,7 +294,9 @@ public class Second {
         return i;
     }
 
-    private static int getMaxSame(String cards){
+    private static int getMaxSame(String cardtmp){
+
+        String cards = cardtmp;
 
         int[] arr = new int[13];
         int max = 0;
@@ -301,7 +306,7 @@ public class Second {
         }
 
         for (int i = 1; i < arr.length; i++) {
-            if(arr[i] >= max){
+            if(arr[i] > max){
                 max = arr[i];
             }
         }
