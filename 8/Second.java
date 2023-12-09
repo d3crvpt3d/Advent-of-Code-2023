@@ -1,6 +1,6 @@
 import java.util.Scanner;
 import java.util.ArrayList;
-import java.util.Arrays;
+//import java.util.Arrays;
 
 public class Second {
     
@@ -48,99 +48,73 @@ public class Second {
 
         //AAZ = 16900
 
-        int state1 = 47;
-        int state2 = 565;
-        int state3 = 549;
-        int state4 = 411;
-        int state5 = 0;
-        int state6 = 497;
+        int[] state = new int[6];
+
+        state[0] = 47;
+        state[1] = 565;
+        state[2] = 549;
+        state[3] = 411;
+        state[4] = 0;
+        state[5] = 497;
 
         int counter = 0;
 
-        boolean state1_b = false;
-        boolean state2_b = false;
-        boolean state3_b = false;
-        boolean state4_b = false;
-        boolean state5_b = false;
-        boolean state6_b = false;
+        int[] state_old = new int[6];
 
-        while (state1 < 16900 || state2 < 16900 ||  state3 < 16900 || state4 < 16900 || state5 < 16900 || state6 < 16900) {
+        int[] state_b = new int[6];
+
+        long[] state_length = new long[6];
+
+        while (state[0] < 16900 || state[1] < 16900 || state[2] < 16900 ||  state[3] < 16900 || state[4] < 16900 || state[5] < 16900) {
             
             int instruc = intructions.get(counter);
-            state1 = network[state1][instruc];
-            state2 = network[state2][instruc];
-            state3 = network[state3][instruc];
-            state4 = network[state4][instruc];
-            state5 = network[state5][instruc];
-            state6 = network[state6][instruc];
+
+            for (int index = 0; index < state.length; index++) {
+                state[index] = network[state[index]][instruc];
+            }
+
             output++;
             counter++;
             if(counter == intructions.size()){
                 counter = 0;
             }
 
-            if(state1 > 16900 && !state1_b){
-                if(state1 == state1_old){
-                    System.err.println("Loop1: "+state1_old);
-                    state1_b = true;
-                    state1_old = output;
-                }else{
-                    state1_old = state1;
-                }
-            }
-            if(state2 > 16900 && !state2_b){
-                if(state2 == state2_old){
-                    System.err.println("Loop2: "+state2_old);
-                    state2_b = true;
-                    state2_old = output;
-                }else{
-                    state2_old = state2;
-                }
-            }
-            if(state3 > 16900 && !state3_b){
-                if(state3 == state3_old){
-                    System.err.println("Loop3: "+state3_old);
-                    state3_b = true;
-                    state3_old = output;
-                }else{
-                    state3_old = state3;
-                }
-            }
-            if(state4 > 16900 && !state4_b){
-                if(state4 == state4_old){
-                    System.err.println("Loop4: "+state4_old);
-                    state4_b = true;
-                    state4_old = output;
-                }else{
-                    state4_old = state4;
-                }
-            }
-            if(state5 > 16900 && !state5_b){
-                if(state5 == state5_old){
-                    System.err.println("Loop5: "+state5_old);
-                    state5_b = true;
-                    state5_old = output;
-                }else{
-                    state5_old = state5;
-                }
-            }
-            if(state6 > 16900 && !state6_b){
-                if(state6 == state6_old){
-                    System.err.println("Loop6: "+state6_old);
-                    state6_b = true;
-                    state6_old = output;
-                }else{
-                    state6_old = state6;
+            for (int i = 0; i < 6; i++) {
+                if(state[i] > 16900){
+                    switch (state_b[i]) {
+                        case 0: // first time
+                            state_b[i]++;
+                            state_old[i] = state[i]; // safe state of first time at xxZ
+                            state_length[i] = output; // safe length of first time
+                            break;
+                        case 1: // second till end if loop
+                            if(state[i] == state_old[i]){ // if loop at same state
+                                state_b[i] = 2; // state[i] -> done
+                            }else{ // if not loop
+                                state_old[i] = state[i]; // safe state for next loop
+                                state_length[i] = output;
+                            }
+                            break;
+                            
+                        default:
+                            break;
+                    }
                 }
             }
 
-            if(state1_b && state2_b && state3_b && state4_b && state5_b && state6_b){
+            boolean end = true;
+            for(int b : state_b){
+                if(b != 2){
+                    end = false;
+                }
+            }
+            if (end) {
                 break;
             }
 
         }
 
-        output = state1_old*state2_old*state3_old*state4_old*state5_old*state6_old;
+        output = 2; //TODO
 
         System.err.println(state1_old);
         System.err.println(state2_old);
