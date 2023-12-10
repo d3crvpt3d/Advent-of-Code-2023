@@ -6,8 +6,8 @@ class Vector {
     int x;
     int y;
     int[] prev = new int[2];
-    String[][] direction;
     int[][] lut; // 1 = pipe, 2 = right, 0 = left
+    String[][] direction;
 
     public Vector(int x, int y, char[][] matrix, int[][] lut, String[][] direction){
         this.x = x;
@@ -22,15 +22,10 @@ class Vector {
     //biased
     public void takeFirstStep(){
 
-        if(prev[0] == -1){
-            this.y--;
-            prev[0] = this.x;
-            prev[1] = this.y+1;
-        }else{
-            this.y++;
-            prev[0] = this.x;
-            prev[1] = this.y-1;
-        }
+        direction[this.x][this.y] = "↑";
+        prev[0] = this.x;
+        prev[1] = this.y;
+        this.y--;
 
     }
 
@@ -74,13 +69,13 @@ class Vector {
                 break;
             case 'L':
                 if(this.prev[0] == this.x && this.prev[1] == this.y-1){
-                    direction[x][y] = "→";
+                    direction[this.x][this.y] = "↓→";
                     this.prev[0] = this.x;
                     this.prev[1] = this.y;
                     this.x++;
                     
                 }else{
-                    direction[this.x][this.y] = "↑";
+                    direction[this.x][this.y] = "←↑";
                     this.prev[0] = this.x;
                     this.prev[1] = this.y;
                     this.y--;
@@ -90,13 +85,13 @@ class Vector {
                 break;
             case 'J':
                 if(this.prev[0] == this.x && this.prev[1] == this.y-1){
-                    direction[this.x][this.y] = "←";
+                    direction[this.x][this.y] = "↓←";
                     this.prev[0] = this.x;
                     this.prev[1] = this.y;
                     this.x--;
                     
                 }else{
-                    direction[this.x][this.y] = "↑";
+                    direction[this.x][this.y] = "→↑";
                     this.prev[0] = this.x;
                     this.prev[1] = this.y;
                     this.y--;
@@ -106,13 +101,13 @@ class Vector {
                 break;
             case '7':
                 if(this.prev[0] == this.x && this.prev[1] == this.y+1){
-                    direction[this.x][this.y] = "←";
+                    direction[this.x][this.y] = "↑←";
                     this.prev[0] = this.x;
                     this.prev[1] = this.y;
                     this.x--;
                     
                 }else{
-                    direction[this.x][this.y] = "↓";
+                    direction[this.x][this.y] = "→↓";
                     this.prev[0] = this.x;
                     this.prev[1] = this.y;
                     this.y++;
@@ -122,13 +117,13 @@ class Vector {
                 break;
             case 'F':
                 if(this.prev[0] == this.x && this.prev[1] == this.y+1){
-                    direction[this.x][this.y] = "→";
+                    direction[this.x][this.y] = "↑→";
                     this.prev[0] = this.x;
                     this.prev[1] = this.y;
                     this.x++;
                     
                 }else{
-                    direction[this.x][this.y] = "↓";
+                    direction[this.x][this.y] = "←↓";
                     this.prev[0] = this.x;
                     this.prev[1] = this.y;
                     this.y++;
@@ -163,59 +158,16 @@ class Vector {
 
 public class Second extends Thread{
 
-    static int[][] lut = new int[140][140]; //pipe lut
+    private static int size_x = 140;
+    private static int size_y = 140;
 
-    static char[][] matrix = new char[140][140]; //input as matrix
+    static int[][] lut = new int[size_x][size_y]; //pipe lut
 
-    static String[][] direction = new String[140][140]; //direction array
+    static char[][] matrix = new char[size_y][size_x]; //input as matrix
 
-    //right -> 2 left -> 3
-    private static void updateDirection(String s, int x, int y){
-        int tile_x = 0;
-        int tile_y = 0;
+    static String[][] direction = new String[size_x][size_y];
 
-        switch (s) {
-            case "↑":
-                tile_x = Math.min(139, x+1);
-                tile_y = y;
-                while (lut[tile_x][tile_y] != 1) {
-                    lut[tile_x][tile_x] = 2;
-                    tile_x++;
-                    if(tile_x == lut.length){break;}
-                }
-                break;
-            case "↓":
-                tile_x = Math.max(0, x-1);
-                tile_y = y;
-                while (lut[tile_x][tile_y] != 1) {
-                    lut[tile_x][tile_x] = 2;
-                    tile_x--;
-                    if(tile_x < 0){break;}
-                }
-                break;
-            case "→":
-                tile_x = x;
-                tile_y = Math.min(139, y+1);
-                while (lut[tile_x][tile_y] != 1) {
-                    lut[tile_x][tile_x] = 2;
-                    tile_y++;
-                    if(tile_y == lut.length){break;}
-                }
-                break;
-            case "←":
-                tile_x = x;
-                tile_y = Math.max(0, y-1);
-                while (lut[tile_x][tile_y] != 1) {
-                    lut[tile_x][tile_x] = 2;
-                    tile_y--;
-                    if(tile_y < 0){break;}
-                }
-                break;
-            
-            default:
-                break;
-            }
-    }
+    
  
 
 
@@ -246,41 +198,85 @@ public class Second extends Thread{
 
         Vector start = getS();
 
-        getMaxDistanceFromAnimal(start); // fill lut with pipes
+        iteratePipe(start); // fill lut with pipes
 
-        //DEBUG
-        //print direction array
-        for (int y = 0; y < direction.length; y++) {
-            for (int x = 0; x < direction[0].length; x++) {
-                System.err.print(direction[x][y]);
-            }
-            System.err.println();
-        }
-        //DEBUG
-
-        //fill lut by looking up direction array
-        for (int y = 0; y < args.length; y++) {
-            for (int x = 0; x < args.length; x++) {
+        // fill empty space with 2 if right of pipe POV
+        for(int y = 0; y < lut[0].length; y++){
+            for (int x = 0; x < lut.length; x++) {
                 if(lut[x][y] == 1){
                     updateDirection(direction[x][y], x, y);
                 }
             }
         }
 
+        int output = 0;
 
+        //print output
         for (int y = 0; y < lut.length; y++) {
             for (int x = 0; x < lut[0].length; x++) {
-                System.out.print(lut[x][y]);
+                //System.err.print(lut[x][y]);
+                if(lut[x][y] == 2){
+                    output++;//count for output
+                }
             }
-            System.out.println();
+            //System.err.println();
         }
+
+        System.out.println(output);
 
     }
 
+    //right -> 2
+    private static void updateDirection(String s, int tile_x_main, int tile_y_main){
+
+        //System.err.println("updateDirection called with: "+s+" "+tile_x_main+" "+tile_y_main);
+
+        char[] result = s.toCharArray();
+
+        for(char c : result){
+
+            int tile_x = tile_x_main;
+            int tile_y = tile_y_main;
+
+            if(c == '↑'){
+                if(tile_x == lut.length-1){break;} // out of bounds
+                tile_x++;
+                while(lut[tile_x][tile_y] != 1){
+                    lut[tile_x][tile_y] = 2;
+                    tile_x++;
+                    if(tile_x == lut.length){break;}
+                }
+            }else if(c == '↓'){
+                if(tile_x == 0){break;} // out of bounds
+                tile_x--;
+                while (lut[tile_x][tile_y] != 1){
+                    lut[tile_x][tile_y] = 2;
+                    tile_x--;
+                    if(tile_x < 0){break;}
+                }
+            }else if(c == '→'){
+                if(tile_y == lut.length-1){break;} // out of bounds
+                tile_y++;
+                while (lut[tile_x][tile_y] != 1){
+                    lut[tile_x][tile_y] = 2;
+                    tile_y++;
+                    if(tile_y == lut.length){break;}
+                }
+            }else if(c == '←'){
+                if(tile_y == 0){break;} // out of bounds
+                tile_y--;
+                while (lut[tile_x][tile_y] != 1){
+                    lut[tile_x][tile_y] = 2;
+                    tile_y--;
+                    if(tile_y < 0){break;}
+                }
+            }
+            //elif end
+        }
+    }
 
 
-
-    private static void getMaxDistanceFromAnimal(Vector start) throws InterruptedException{
+    private static void iteratePipe(Vector start) throws InterruptedException{
 
         Vector pos1 = new Vector(start.x, start.y, matrix, lut, direction);
 
@@ -293,7 +289,7 @@ public class Second extends Thread{
 
         //128 88 start
         
-        while (!(pos1.x == 88 && pos1.y == 128)) {
+        while (!(pos1.x == start.x && pos1.y == start.y)) {
 
             //Thread.sleep(100);
             pos1.takeNextStep();
