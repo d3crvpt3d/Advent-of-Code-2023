@@ -2,9 +2,9 @@ import java.util.ArrayList;
 //import java.util.Arrays;
 import java.util.Scanner;
 
-public class First {
+public class First{
 
-    private static long extra = 2;//void multiplyer
+    private static int extra = 2;
     private static boolean[] filledZeiles;
     private static boolean[] filledSpalte;
 
@@ -48,7 +48,7 @@ public class First {
             for (int x = 0; x < space.get(y).size(); x++) {
                 char c = a.get(x);
                 if(c == '#'){
-                    galaxyList.add(new Galaxy(x, y));
+                    galaxyList.add(new Galaxy(x, y, extra, filledZeiles, filledSpalte));
                 }
             }
         }
@@ -57,7 +57,8 @@ public class First {
         for (int i = 0; i < galaxyList.size(); i++) {
             Galaxy g1 = galaxyList.get(i);
             for (int j = i+1; j < galaxyList.size(); j++) {
-                g1.addPath(pathLength(g1, galaxyList.get(j)));
+                g1.setB(galaxyList.get(j));
+                g1.run();
             }
         }
 
@@ -101,7 +102,60 @@ public class First {
     }
 
 
-    private static long pathLength(Galaxy a, Galaxy b){
+    
+
+}
+
+
+
+class Galaxy implements Runnable{
+    private int x;
+    private int y;
+    private long pathLength = 0;
+
+    //multithreading
+    private boolean[] filledZeiles;
+    private boolean[] filledSpalte;
+    private int extra;
+
+    private Galaxy b;
+
+    public Galaxy(int x, int y, int extra, boolean[] filledZeiles, boolean[] filledSpalte){
+        this.x = x;
+        this.y = y;
+        
+        this.extra = extra;
+        this.filledZeiles = filledZeiles;
+        this.filledSpalte = filledSpalte;
+    }
+
+    public void setB(Galaxy b) {
+        this.b = b;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public long getPathLength() {
+        return pathLength;
+    }
+
+    public void addPath(long a) {
+        pathLength += a;
+//        System.err.println("Added "+a+" to "+this);
+    }
+
+    @Override
+    public void run() {
+        this.pathLength();
+    }
+
+    private void pathLength(){
 
         int xmin;
         int xmax;
@@ -109,19 +163,19 @@ public class First {
         int ymin;
         int ymax;
 
-        if(a.getX() - b.getX() > 0){
+        if(this.getX() - b.getX() > 0){
             xmin = b.getX();
-            xmax = a.getX();
+            xmax = this.getX();
         }else{
-            xmin = a.getX();
+            xmin = this.getX();
             xmax = b.getX();
         }
 
-        if(a.getY() - b.getY() > 0){
+        if(this.getY() - b.getY() > 0){
             ymin = b.getY();
-            ymax = a.getY();
+            ymax = this.getY();
         }else{
-            ymin = a.getY();
+            ymin = this.getY();
             ymax = b.getY();
         }
 
@@ -140,41 +194,10 @@ public class First {
             }
         }
 
-        return  xmax - xmin +
-                ymax - ymin +
-                lücken * extra-
-                lücken;
+        this.pathLength +=  xmax - xmin +
+                            ymax - ymin +
+                            lücken * extra-
+                            lücken;
 
-    }
-
-}
-
-
-
-class Galaxy{
-    private int x;
-    private int y;
-    private long pathLength = 0;
-
-    public Galaxy(int x, int y){
-        this.x = x;
-        this.y = y;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public long getPathLength() {
-        return pathLength;
-    }
-
-    public void addPath(long a) {
-        pathLength += a;
-//        System.err.println("Added "+a+" to "+this);
     }
 }
