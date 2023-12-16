@@ -1,14 +1,18 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class First {
+public class First{
     
     public static void main(String[] args) {
+
+        //time
+        NiceTime nT = new NiceTime();
 
         System.out.println("Start");
         
         new First();
 
+        System.out.println(nT.getElapsedTime());
     }
 
     ArrayList<ArrayList<Character>> inputField = new ArrayList<ArrayList<Character>>();
@@ -38,7 +42,7 @@ public class First {
         size_x = inputField.get(0).size();
         size_y = inputField.size();
 
-        System.err.println(size_x+" "+size_y); //DEBUG
+//        System.err.println(size_x+" "+size_y); //DEBUG
 
         resultField = new boolean[inputField.size()][inputField.get(0).size()][4];
 
@@ -146,7 +150,7 @@ class Tracer implements Runnable{
     
     private char getDirection(){
 
-        System.err.println(this+":"+x+" "+y+" "+c); //DEBUG
+//        System.err.println(this+":"+x+" "+y+" "+c); //DEBUG
 
         int tmp_dir = 0;
 
