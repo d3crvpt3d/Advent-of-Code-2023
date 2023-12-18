@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Arrays;
-import java.util.Comparator;
 
 class Charac implements Comparable<Charac>{
 
