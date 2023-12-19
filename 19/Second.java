@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class Second {
 
     private static HashMap<String, Instruction> instructions = new HashMap<String, Instruction>();
+    private static long[] xmas = {4000, 4000, 4000, 4000};
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -24,11 +25,46 @@ public class Second {
 
         long output = 0;
 
+        propagate();
 
         System.out.println(output);
 
         System.err.println(nt.getElapsedTime());
     }
+
+    private static void propagate(){
+
+        recursive(instructions.get("in"), xmas);
+
+    }
+
+    private static long recursive(Instruction instruc, long[] xmas){
+
+
+
+    }
+
+}
+
+class Range{
+
+    ArrayList<Integer> start = new ArrayList<Integer>();
+    ArrayList<Integer> end = new ArrayList<Integer>();
+
+    private int size;
+
+    public Range(int size){
+        this.size = size;
+    }
+
+    public void addRange(int a, int b){
+        
+    }
+
+
+
+
+
 }
 
 class InstructionTuple{
@@ -66,6 +102,14 @@ class Instruction{
 
     private ArrayList<InstructionTuple> tuples = new ArrayList<InstructionTuple>();
     private String then;
+
+    public ArrayList<InstructionTuple> getTuples() {
+        return tuples;
+    }
+
+    public String getThen() {
+        return then;
+    }
 
     public Instruction(String[] input){
         
