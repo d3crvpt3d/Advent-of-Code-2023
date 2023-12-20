@@ -8,6 +8,7 @@ class First{
 
     static HashMap<String, Module> hMap = new HashMap<String, Module>();
 
+    static Collector collector = new Collector();
     
     static int pulsesLow = 1000; //button pulses
     static int pulsesHigh = 0;
@@ -41,7 +42,7 @@ class First{
 
         hMap.put("output", new Output());
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1; i++) {
             
             hMap.get("broadcaster").doThing(false, new Output());
 
@@ -75,11 +76,12 @@ class Broadcaster implements Module{
     @Override
     public void doThing(boolean pulse, Module from){
 
-//        System.err.printf("Broadcaster send %b to %d\n", pulse, outputs.size());
         for(int i = 0; i < outputs.size(); i++) {
-            if(pulse){First.pulsesHigh++;}else{First.pulsesLow++;} //add pulses to first
-            hMap.get(outputs.get(i)).doThing(pulse, this);
+            First.collector.putHaMap(pulse, hMap.get(outputs.get(i)), this);
         }
+        System.err.printf("Broadcaster send %b to %d\n", pulse, outputs.size());
+        if(pulse){First.pulsesHigh+=outputs.size();}else{First.pulsesLow+=outputs.size();} //add pulses to first
+        First.collector.send();
     }
 
 }
@@ -114,11 +116,12 @@ class Conjunction implements Module{
             }
         }
 
-//        System.err.printf("Conjunction send %b to %d\n", b, outputs.size());
         for (int i = 0; i < outputs.size(); i++) {
-            if(b){First.pulsesHigh++;}else{First.pulsesLow++;} //add pulses to first
-            hMap.get(outputs.get(i)).doThing(b, this);
+            First.collector.putHaMap(b, hMap.get(outputs.get(i)), this);
         }
+        System.err.printf("Conjunction send %b to %d\n", b, outputs.size());
+        if(b){First.pulsesHigh+=outputs.size();}else{First.pulsesLow+=outputs.size();} //add pulses to first
+        First.collector.send();
     }
     
 }
@@ -141,22 +144,59 @@ class FlipFlop implements Module{
 
         if(pulse){return;}
         state = !state;
-//        System.err.printf("Flipflop send %b to %d\n", state, outputs.size());
         for (int i = 0; i < outputs.size(); i++) {
-            if(state){First.pulsesHigh++;}else{First.pulsesLow++;} //add pulses to first
-            hMap.get(outputs.get(i)).doThing(state, this);
+            First.collector.putHaMap(state, hMap.get(outputs.get(i)), this);
         }
+        System.err.printf("Flipflop send %b to %d\n", state, outputs.size());
+        if(state){First.pulsesHigh+=outputs.size();}else{First.pulsesLow+=outputs.size();} //add pulses to first
+        First.collector.send();
     }
 
 }
 
 class Output implements Module{
 
-
-
     @Override
     public void doThing(boolean pulse, Module from) {
         ;
     }
     
+}
+
+class Collector{
+
+    private HashMap<Module, Tuple> hM_in;
+    private HashMap<Module, Tuple> hM_out;
+
+    public Collector(){
+        this.hM_in = new HashMap<Module, Tuple>();
+        this.hM_out = new HashMap<Module, Tuple>();
+    }
+
+    public void putHaMap(boolean pulse, Module moduleTo, Module from) {
+        hM_in.put(moduleTo, new Tuple(from, pulse));
+    }
+    
+    public void send(){
+        for (Map.Entry<Module, Tuple> entry : hM_in.entrySet()) {
+            //fill hM_out with new signals
+        }
+
+        //
+
+        hM_in.clear(); //reset
+    }
+
+}
+
+class Tuple{
+
+    Module from;
+    boolean pulse;
+
+    public Tuple(Module from, boolean pulse){
+        this.from = from;
+        this.pulse = pulse;
+    }
+
 }
