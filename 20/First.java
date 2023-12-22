@@ -166,25 +166,34 @@ class Output implements Module{
 class Collector{
 
     private HashMap<Module, Tuple> hM_in;
-    private HashMap<Module, Tuple> hM_out;
+    private HashMap<Module, Tuple> hM_2;
+    private HashMap<Module, Tuple> hM_tmp;
 
     public Collector(){
         this.hM_in = new HashMap<Module, Tuple>();
-        this.hM_out = new HashMap<Module, Tuple>();
     }
 
     public void putHaMap(boolean pulse, Module moduleTo, Module from) {
         hM_in.put(moduleTo, new Tuple(from, pulse));
     }
-    
+
     public void send(){
-        for (Map.Entry<Module, Tuple> entry : hM_in.entrySet()) {
-            //fill hM_out with new signals
+
+        while (!hM_in.isEmpty()) {
+            hM_tmp = hM_in;
+            hM_in = hM_2;
+            hM_2 = hM_tmp;
+
+            //run all from hM_2 and fill it in hM_in
+            for (Map.Entry<Module, Tuple> entry : hM_2.entrySet()) {
+                entry.getKey().doThing(entry.getValue().pulse, entry.getValue().from);
+            }
+
+            hM_2.clear(); //redundant, but idk what java does
+
+        
         }
 
-        //
-
-        hM_in.clear(); //reset
     }
 
 }
